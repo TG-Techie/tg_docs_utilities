@@ -1,0 +1,3 @@
+[submodule "examples/python/tg_gui"]
+	path = examples/python/tg_gui
+	url = https://github.com/TG-Techie/tg_gui
