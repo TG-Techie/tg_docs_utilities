@@ -88,7 +88,7 @@ def write_class(class_obj, class_name, file, template):
 
     file.write('</ul>')
 
-def compile_page(module, output_path, template = default_template):
+def compile_page(module, output_path, template = default_template, layout = None):
     print()
     prev_path = os.path.abspath(output_path)
     file_path = os.path.abspath(output_path+'/docs/'+'/'.join(module.__name__.split('.')[0:-1]))
@@ -108,6 +108,11 @@ def compile_page(module, output_path, template = default_template):
 
     file = open(file_name,"w+")
     file.seek(0)
+    
+    if layout:
+        file.write("""---
+layout: {{layout}}
+---""".replace("{{layout}}", layout))
     #print(file)
 
     file.write(file_start.replace('{{style}}',template[0]).replace('{{title}}',file_title))
