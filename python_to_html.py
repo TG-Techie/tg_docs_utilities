@@ -1,39 +1,46 @@
 import os, time, shutil, inspect
 
-file_start = '''
+#order style, function, class, class_function, file_start, file_end
+default_template = [
+#style part of string
+'''
+body{background-color: white;}
+''',
+#wrapper for a function
+'''<hr><div>
+    <h3>{{name}}</h3>
+    <p>{{content}}</p>
+</div>
+''',
+#wrapper for a class
+'''
+<hr><div>
+    <h3>{{name}}</h3>
+    <p>{{content}}</p>
+</div>
+''',
+#wrapper for a method of a class
+'''
+<hr><div>
+    <h3>{{name}}</h3>
+    <p>{{content}}</p>
+</div>
+''',
+#start of the file
+'''
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>Docs.{{title}}</title>
-    <style>
-    {{style}}
-    </style>
+    <style>{{style}}</style>
 </head>
-<body>
-<ul>
-<!--start in-module objects-->
-'''
-
-file_end = '''<!--end in-module objects-->
-</ul>
-</body>
-</html>'''
-
-#order style, method,
-default_template = [
-'''
-body{
-    background-color: white;
-}
+<body><!--ul--><!--start in-module objects-->
 ''',
-'''
-<hr>
-<div>
-    <h3>{{name}}</h3>
-    <p>{{content}}</p>
-</div>
-''',]
+#end of the file
+'''<!--end in-module objects-->
+<!--/ul--></body></html>''',
+]
 default_template.append(default_template[1])
 
 def parse_docstring(object, object_name, template):
@@ -64,9 +71,11 @@ def parse_docstring(object, object_name, template):
 
     return(section.replace('{{content}}',doc_out))
 
-def write_function(func, func_name, file, template):
-
-    file.write('<li>'+parse_docstring(func, func_name, template[1])+'</li>\n')
+def write_function(func, func_name, file, template, index = 1):
+    string = parse_docstring(func, func_name, template[index])
+    print(func_name, '"'+string+'"')
+    if len(string):
+        file.write('<li>'+string+'</li>\n')
 
 def write_class(class_obj, class_name, file, template):
 
@@ -84,7 +93,7 @@ def write_class(class_obj, class_name, file, template):
         attribute = eval('class_obj.'+attribute_name)
         if not attribute_name[0] == '_':
             if callable(attribute) :
-                write_function(attribute, class_name+'.'+attribute.__name__, file, template)
+                write_function(attribute, class_name+'.'+attribute.__name__, file, template, index = 3)
 
     file.write('</ul>')
 
@@ -108,14 +117,14 @@ def compile_page(module, output_path, template = default_template, layout = None
 
     file = open(file_name,"w+")
     file.seek(0)
-    
+
     if layout:
         file.write("""---
 layout: {{layout}}
 ---""".replace("{{layout}}", layout))
     #print(file)
 
-    file.write(file_start.replace('{{style}}',template[0]).replace('{{title}}',file_title))
+    file.write(template[4].replace('{{style}}',template[0]).replace('{{title}}',file_title))
 
     object_list = list(dir(module))
     object_list.sort()
@@ -138,7 +147,7 @@ layout: {{layout}}
                     elif not inspect.isclass(object):
                         write_function(object, object_name, file, template)
 
-    file.write(file_end)
+    file.write(template[5])
 
     file.close()
     print(os.listdir(file_path))
