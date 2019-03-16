@@ -44,7 +44,9 @@ body{background-color: white;}
 default_template.append(default_template[1])
 
 def parse_docstring(object, object_name, template):
-
+    """
+    A function to parse the docs of a function, class, or method and return an
+    """
     section = template
 
     doc = str(object.__doc__).split(':param ')
