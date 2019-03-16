@@ -73,9 +73,10 @@ def parse_docstring(object, object_name, template):
 
 def write_function(func, func_name, file, template, index = 1):
     string = parse_docstring(func, func_name, template[index])
-    print(func_name, '"'+string+'"')
+    #print()
+    #print(func_name, '"'+string+'"')
     if len(string):
-        file.write('<li>'+string+'</li>\n')
+        file.write(string+'\n')
 
 def write_class(class_obj, class_name, file, template):
 
@@ -93,7 +94,9 @@ def write_class(class_obj, class_name, file, template):
         attribute = eval('class_obj.'+attribute_name)
         if not attribute_name[0] == '_':
             if callable(attribute) :
+                file.write('<li>')
                 write_function(attribute, class_name+'.'+attribute.__name__, file, template, index = 3)
+                file.write('</li>')
 
     file.write('</ul>')
 
