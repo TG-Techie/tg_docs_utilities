@@ -134,8 +134,8 @@ def compile_page(module, output_path, template = default_template, layout = None
     :param output_path: the path to create the html file, locational input permitted.
     :param template: a keyword input that specifies the wrapping html around documentation.
     input a list in the order: [style, function, class, class_function, file_start, file_end].
-    style will be inserted into file_start in place of "{{style}}".
-    for function, class, and method  "{{name}}" and "{{contents}}" will be replaced with the name and content.
+    style will be inserted into file_start in place of "{{style} }".
+    for function, class, and method  "{{name} }" and "{{contents} }" will be replaced with the name and content.
     file_end and file_start will take take their places respectively on each side of the file.
 
     """
