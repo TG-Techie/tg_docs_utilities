@@ -1,4 +1,10 @@
+"""
+can you see me?
+"""
 import os, time, shutil, inspect
+
+__version__ = "0.x"
+__repo__ = "https://github.com/TG-Techie/tg_docs_utilities"
 
 #order style, function, class, class_function, file_start, file_end
 default_template = [
@@ -45,7 +51,11 @@ default_template.append(default_template[1])
 
 def parse_docstring(object, object_name, template):
     """
-    A function to parse the docs of a function, class, or method and return an
+    A function to parse the docs of a function, class, or method and return
+    a html formatted string.
+    :param object: the object to extract docs from.
+    :param object_name:the desired name used in the output.
+    :param template:the string to insert teh data into
     """
     section = template
 
@@ -130,6 +140,20 @@ layout: {{layout}}
     #print(file)
 
     file.write(template[4].replace('{{style}}',template[0]).replace('{{title}}',file_title))
+
+    #intro section
+    file.write('<hr><ul>')
+    file.write('<h2>'+module_name+'</h2>')
+    if hasattr(module, '__version__'):
+        if module.__version__:
+            file.write('<p><h3 style="display:inline;">Version:</h3> '+module.__version__+"</p>")
+    if hasattr(module, '__repo__'):
+        if module.__repo__:
+            file.write('<p><h3 style="display:inline;">Repository:</h3> '+module.__repo__+"</p>")
+    if hasattr(module, '__doc__'):
+        if module.__doc__:
+            file.write('<p><h3>Description:</h3> '+module.__doc__+"</p>")
+    file.write('</ul><hr>')
 
     object_list = list(dir(module))
     object_list.sort()
