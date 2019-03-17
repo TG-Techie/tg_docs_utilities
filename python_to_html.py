@@ -73,8 +73,8 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
     tag=''
     content = '<ul>'
     main_desc='None'
+    inputs= []
     doc_out=''
-    input_parens = '('
 
     type_prefix = ''
     while len(doc):
@@ -88,6 +88,7 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
             elif front == 'type':
                 type_prefix = back
             elif front == 'param':
+                inputs.append(subj[1])
                 doc_out += '<li>'+type_prefix+' '+back+':'+doc.pop(0)+'</li>'
             else:
                 type_prefix = ''
@@ -102,9 +103,9 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
         doc_out = main_desc+doc_out
 
 
-
-    for line in doc:
-        input_parens += line.split(':')[0] +',  '
+    input_parens = '('
+    for inp in inputs:
+        input_parens += inp +',  '
     input_parens += '):'
 
     section = section.replace('{{name}}', highlight.replace('{{contents}}',prefix)+' '+object_name+input_parens)
