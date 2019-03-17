@@ -7,7 +7,7 @@ import os, time, shutil, inspect
 __version__ = "0.x"
 __repo__ = "https://github.com/TG-Techie/tg_docs_utilities"
 
-#order style, function, class, class_function, file_start, file_end
+#order style, function, class, class_function, highlight, file_start, file_end
 default_template = [
 #style part of string
 '''
@@ -15,6 +15,7 @@ body{background-color: white;}
 ''',
 #wrapper for a function
 '''<hr><div>
+    {{tag}}
     <h3>{{name}}</h3>
     <p>{{contents}}</p>
 </div>
@@ -22,6 +23,7 @@ body{background-color: white;}
 #wrapper for a class
 '''
 <hr><div>
+    {{tag}}
     <h3>{{name}}</h3>
     <p>{{contents}}</p>
 </div>
@@ -29,10 +31,13 @@ body{background-color: white;}
 #wrapper for a method of a class
 '''
 <hr><div>
+    {{tag}}
     <h3>{{name}}</h3>
     <p>{{contents}}</p>
 </div>
 ''',
+#highlight
+'''<span style="background-color:#bbb;"">{{contents}}</span>''',
 #start of the file
 '''
 <!DOCTYPE html>
@@ -50,7 +55,7 @@ body{background-color: white;}
 ]
 default_template.append(default_template[1])
 
-def parse_docstring(object, object_name, template):
+def parse_docstring(object, object_name, template, highlight, prefix = ''):
     """
     Parse the docs of a function, class, or method and return
     a html formatted string.
@@ -58,22 +63,52 @@ def parse_docstring(object, object_name, template):
     :param object_name:the desired name used in the output.
     :param template:the pre-written html to be formatted with the
     object specific docs.
+    :param prefix: the prefix to put infron of  that name. (often 'class' or 'function')
     """
     section = template
 
-    doc = str(object.__doc__).split(':param')
-    val = doc.pop(0)
-    if val == 'None':
-        doc_out = '<em>No documentation found.</em>'
-    else:
-        doc_out = val
+    doc = str(object.__doc__).split(':')
+    types = ['param', 'tag', 'type']
 
+    tag=''
+    content = '<ul>'
+    main_desc='None'
+    doc_out=''
     input_parens = '('
+
+    type_prefix = ''
+    while len(doc):
+        subj = doc.pop(0).split(' ')
+        #print(subj[0:2])
+        if subj[0] in types:
+            front = subj[0]
+            back = ' '.join(subj[1:])
+            if front == 'tag':
+                tag = back
+            elif front == 'type':
+                type_prefix = back
+            elif front == 'param':
+                doc_out += '<li>'+type_prefix+' '+back+':'+doc.pop(0)+'</li>'
+            else:
+                type_prefix = ''
+        else:
+            main_desc = ' '.join(subj)
+
+    content += '</ul>'
+
+    if main_desc == 'None':
+        doc_out = '<i>No documentation found.</i>'+doc_out
+    else:
+        doc_out = main_desc+doc_out
+
+
+
     for line in doc:
         input_parens += line.split(':')[0] +',  '
     input_parens += '):'
 
-    section = section.replace('{{name}}',object_name+input_parens)
+    section = section.replace('{{name}}', highlight.replace('{{contents}}',prefix)+' '+object_name+input_parens)
+    section = section.replace('{{note}}','<p>'+highlight.replace('{{contents}}',tag)+'</p>')
 
     if len(doc):
         doc_out +='<ul> <h4>Input'+('s','')[len(doc) == 1]+':</h4>'
@@ -85,7 +120,7 @@ def parse_docstring(object, object_name, template):
 
     return(section.replace('{{contents}}',doc_out))
 
-def write_function(func, func_name, file, template, index = 1):
+def write_function(func, func_name, file, template, index = 1, prefix = 'function'):
     """
     From the template write the formatted docstring of the inputted function.
     :param func: the function to document
@@ -93,7 +128,7 @@ def write_function(func, func_name, file, template, index = 1):
     :param file: the file to output the documentation to.
     :param template: the list containing templates.
     """
-    string = parse_docstring(func, func_name, template[index])
+    string = parse_docstring(func, func_name, template[index], template[4], prefix = prefix)
     #print()
     #print(func_name, '"'+string+'"')
     if len(string):
@@ -111,9 +146,9 @@ def write_class(class_obj, class_name, file, template):
     attr_list.sort()
 
     if '__init__' in attr_list:
-        file.write(parse_docstring(eval('class_obj.__init__') ,class_name, template[2]))
+        file.write(parse_docstring(eval('class_obj.__init__') ,class_name, template[2], template[4], prefix = 'class'))
     else:
-        file.write(parse_docstring(class_obj, class_name, template[2]))
+        file.write(parse_docstring(class_obj, class_name, template[2], template[4], prefix = 'class'))
 
     file.write('<ul>')
 
@@ -122,7 +157,7 @@ def write_class(class_obj, class_name, file, template):
         if not attribute_name[0] == '_':
             if callable(attribute) :
                 file.write('<li>')
-                write_function(attribute, class_name+'.'+attribute.__name__, file, template, index = 3)
+                write_function(attribute, class_name+'.'+attribute.__name__, file, template, index = 3, prefix = '')
                 file.write('</li>')
 
     file.write('</ul>')
@@ -165,7 +200,7 @@ layout: {{layout}}
 ---""".replace("{{layout}}", layout))
     #print(file)
 
-    file.write(template[4].replace('{{style}}',template[0]).replace('{{title}}',file_title))
+    file.write(template[len(template)-3].replace('{{style}}',template[0]).replace('{{title}}',file_title))
 
     #intro section
     file.write('<hr><ul>')
@@ -203,7 +238,7 @@ layout: {{layout}}
                     elif not inspect.isclass(object):
                         write_function(object, object_name, file, template)
 
-    file.write(template[5])
+    file.write(template[len(template)-2])
 
     file.close()
     print(os.listdir(file_path))
