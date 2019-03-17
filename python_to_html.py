@@ -61,7 +61,7 @@ def parse_docstring(object, object_name, template):
     """
     section = template
 
-    doc = str(object.__doc__).split(':param ')
+    doc = str(object.__doc__).split(':param')
     val = doc.pop(0)
     if val == 'None':
         doc_out = '<em>No documentation found.</em>'
