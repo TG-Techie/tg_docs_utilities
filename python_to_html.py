@@ -143,7 +143,8 @@ layout: {{layout}}
 
     #intro section
     file.write('<hr><ul>')
-    file.write('<h2>'+module_name+'</h2>')
+    file.write('<h2 style="display:inline;">'+module_name+'</h2> ')
+    file.write(module.__name__)
     if hasattr(module, '__version__'):
         if module.__version__:
             file.write('<p><h3 style="display:inline;">Version:</h3> '+module.__version__+"</p>")
