@@ -125,7 +125,7 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
         li
     /ul
     """
-    print(doc_out)
+    #print(doc_out)
     content = '<div style="margin-left:3%"><p>'+main_desc+'</p>\n<ul>'+doc_out+'</ul></div>'
 
     return(section.replace('{{contents}}',content))
