@@ -71,8 +71,9 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
     types = ['param', 'tag', 'type']
 
     tag=''
-    content = '<ul>'
-    main_desc='None'
+
+    num_inputs = 0
+    main_desc='<i>No documentation found.</i>'
     inputs= []
     doc_out=''
 
@@ -89,37 +90,45 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
                 type_prefix = back
             elif front == 'param':
                 inputs.append(subj[1])
-                doc_out += '<li>'+type_prefix+' '+back+':'+doc.pop(0)+'</li>'
+                num_inputs += 1
+                doc_out += '\n<li>'+type_prefix+' '+back+':'+doc.pop(0)+'</li>'
+                type_prefix = ''
             else:
                 type_prefix = ''
         else:
             main_desc = ' '.join(subj)
 
-    content += '</ul>'
 
-    if main_desc == 'None':
-        doc_out = '<i>No documentation found.</i>'+doc_out
-    else:
-        doc_out = main_desc+doc_out
+            #add the top "note"
+    section = section.replace('{{note}}',highlight.replace('{{contents}}',tag))
 
-
-    input_parens = '('
+    #add in the name and prefix
+    '''type func_name(in,puts,):'''
+    inputstring = ''
     for inp in inputs:
-        input_parens += inp +',  '
-    input_parens += '):'
+        inputstring += inp +',  '
+    inputstring = '('+inputstring+'):'
 
-    section = section.replace('{{name}}', highlight.replace('{{contents}}',prefix)+' '+object_name+input_parens)
-    section = section.replace('{{note}}','<p>'+highlight.replace('{{contents}}',tag)+'</p>')
+    name = highlight.replace('{{contents}}',prefix) # the prefix, highlighted
+    name += ' '+object_name
+    name += inputstring
+    section = section.replace('{{name}}', name)
 
-    if len(doc):
-        doc_out +='<ul> <h4>Input'+('s','')[len(doc) == 1]+':</h4>'
-        while len(doc):
-            doc_out += '<li>'
-            doc_out += doc.pop(0).strip('\n')
-            doc_out += '</li>\n'
-        doc_out += '</ul>'
 
-    return(section.replace('{{contents}}',doc_out))
+    #add in contents
+    """
+    Description
+    Inputs:
+    ul
+        li
+        li
+        li
+    /ul
+    """
+    print(doc_out)
+    content = '<div style="margin-left:3%"><p>'+main_desc+'</p>\n<ul>'+doc_out+'</ul></div>'
+
+    return(section.replace('{{contents}}',content))
 
 def write_function(func, func_name, file, template, index = 1, prefix = 'function'):
     """
@@ -151,17 +160,17 @@ def write_class(class_obj, class_name, file, template):
     else:
         file.write(parse_docstring(class_obj, class_name, template[2], template[4], prefix = 'class'))
 
-    file.write('<ul>')
+    file.write('<div style="margin-left:5%">')
 
     for attribute_name in attr_list:
         attribute = eval('class_obj.'+attribute_name)
         if not attribute_name[0] == '_':
             if callable(attribute) :
-                file.write('<li>')
+                #file.write('<li>')
                 write_function(attribute, class_name+'.'+attribute.__name__, file, template, index = 3, prefix = '')
-                file.write('</li>')
+                #file.write('</li>')
 
-    file.write('</ul>')
+    file.write('</div>')
 
 def compile_page(module, output_path, template = default_template, layout = None):
     """
