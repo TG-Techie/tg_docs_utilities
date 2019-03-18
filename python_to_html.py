@@ -107,7 +107,7 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
     inputstring = ''
     for inp in inputs:
         inputstring += inp +',  '
-    inputstring = '('+inputstring+'):'
+    inputstring = '('+inputstring.strip(' ').strip(',')+'):'
 
     name = highlight.replace('{{contents}}',prefix) # the prefix, highlighted
     name += ' '+object_name
