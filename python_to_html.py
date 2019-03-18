@@ -51,8 +51,8 @@ body{background-color: white;}
 ''',
 #end of the file
 '''<!--end in-module objects-->
-<!--/ul--></body></html>''',
-]
+<!--/ul--></body></html>''']
+
 default_template.append(default_template[1])
 
 def parse_docstring(object, object_name, template, highlight, prefix = ''):
