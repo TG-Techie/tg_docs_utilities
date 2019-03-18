@@ -160,7 +160,7 @@ def write_class(class_obj, class_name, file, template):
     else:
         file.write(parse_docstring(class_obj, class_name, template[2], template[4], prefix = 'class'))
 
-    file.write('<div style="margin-left:5%">')
+    #file.write('<div style="margin-left:5%">')
 
     for attribute_name in attr_list:
         attribute = eval('class_obj.'+attribute_name)
@@ -170,7 +170,7 @@ def write_class(class_obj, class_name, file, template):
                 write_function(attribute, class_name+'.'+attribute.__name__, file, template, index = 3, prefix = '')
                 #file.write('</li>')
 
-    file.write('</div>')
+    #file.write('</div>')
 
 def compile_page(module, output_path, template = default_template, layout = None):
     """
