@@ -61,8 +61,7 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
     a html formatted string.
     :param object: the object to extract docs from.
     :param object_name:the desired name used in the output.
-    :param template:the pre-written html to be formatted with the
-    object specific docs.
+    :param template:the pre-written html to be formatted with the object specific docs.
     :param prefix: the prefix to put infron of  that name. (often 'class' or 'function')
     """
     section = template
@@ -85,6 +84,7 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
             front = subj[0]
             back = ' '.join(subj[1:])
             if front == 'tag':
+                print('!tag', back, object_name)
                 tag = back
             elif front == 'type':
                 type_prefix = back
@@ -111,7 +111,10 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
 
     name = highlight.replace('{{contents}}',prefix) # the prefix, highlighted
     name += ' '+object_name
-    name += inputstring
+    if not isinstance(object, property):
+        name += inputstring
+    else:
+        name += ':'
     section = section.replace('{{name}}', name)
 
 
@@ -130,7 +133,7 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
 
     return(section.replace('{{contents}}',content))
 
-def write_function(func, func_name, file, template, index = 1, prefix = 'function'):
+def write_item(func, func_name, file, template, index = 1, prefix = 'function'):
     """
     From the template write the formatted docstring of the inputted function.
     :param func: the function to document
@@ -153,6 +156,7 @@ def write_class(class_obj, class_name, file, template):
     :param template: the list containing templates.
     """
     attr_list = list(dir(class_obj))
+    #print(class_name, attr_list)
     attr_list.sort()
 
     if '__init__' in attr_list:
@@ -165,10 +169,13 @@ def write_class(class_obj, class_name, file, template):
     for attribute_name in attr_list:
         attribute = eval('class_obj.'+attribute_name)
         if not attribute_name[0] == '_':
-            if callable(attribute) :
+            if callable(attribute):# or isinstance(attribute, property):
                 #file.write('<li>')
-                write_function(attribute, class_name+'.'+attribute.__name__, file, template, index = 3, prefix = '')
+                write_item(attribute, class_name+'.'+attribute.__name__, file, template, index = 3, prefix = '')
                 #file.write('</li>')
+            elif isinstance(attribute, property):
+                #print(str(attribute))
+                write_item(attribute, class_name+'.'+attribute_name, file, template, index = 3, prefix = '')
 
     #file.write('</div>')
 
@@ -246,7 +253,7 @@ layout: {{layout}}
                     if inspect.isclass(object):
                         write_class(object, object_name, file, template)
                     elif not inspect.isclass(object):
-                        write_function(object, object_name, file, template)
+                        write_item(object, object_name, file, template)
 
     file.write(template[len(template)-2])
 
