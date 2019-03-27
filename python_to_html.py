@@ -102,8 +102,16 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
 
 
     #add the top "note"
-    anchor = '<a id="'+object_name+'"></a>'
-    section = section.replace('{{note}}',highlight.replace('{{contents}}',tag+anchor))
+    anchors = []
+    for permu in [object_name,
+                  prefix+' '+object_name,
+                  tag+' '+object_name]:
+        anchors.append('<a id="'+permu+'''" style='margin-top: -7.5%;
+                                              padding-bottom: 7.5%;
+                                              display: block;'>
+                        </a>''')
+
+    section = section.replace('{{note}}',highlight.replace('{{contents}}',tag+''.join(anchors)))
 
     #add in the name and prefix
     '''type func_name(in,puts,):'''
@@ -197,7 +205,7 @@ def compile_page(module, output_path, template = default_template, layout = None
     file_end and file_start will take take their places respectively on each side of the file.
 
     """
-    print()
+    print('\n', module)
     prev_path = os.path.abspath(output_path)
     file_path = os.path.abspath(output_path+'/docs/'+'/'.join(module.__name__.split('.')[0:-1]))
     module_name = module.__name__.split('.')[-1]
@@ -238,6 +246,31 @@ layout: {{layout}}
     if hasattr(module, '__doc__'):
         if module.__doc__:
             file.write('<p><h3>Description:</h3> '+module.__doc__+"</p>")
+
+
+
+    file.write("""
+    <input id="autogen_search_input">
+    <a
+        href="#foobar"
+        id="autogen_search_anchor"
+        class="autogen_search_anchor"
+        style="
+            text-decoration: none;
+            background-color:lightgrey;
+            padding: .3em;
+            border-radius: .3em;"
+    >Search</a>
+    <script>
+    let interval;
+    interval = setInterval(() => {
+        document.getElementById("autogen_search_anchor").href =  "#"+document.getElementById("autogen_search_input").value;
+
+      }, 1);
+
+    </script>
+    """)
+
     file.write('</ul><hr>')
 
     object_list = list(dir(module))
