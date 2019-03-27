@@ -197,9 +197,9 @@ def compile_page(module, output_path, template = default_template, layout = None
     """
     Write a html document for the inputted module to the inputted location.
     :param module: the module object to document.
-    :param output_path: the path to create the html file, locational input permitted.
+    :param output_path: the path in which to ouput the created html file. './' is permitted.
     :param template: a keyword input that specifies the wrapping html around documentation.
-    input a list in the order: [style, function, class, class_function, file_start, file_end].
+    input a list in the following order [style, function, class, class_function, file_start, file_end].
     style will be inserted into file_start in place of "{ {style}}".
     for function, class, and method  "{ {name}}" and "{ {contents}}" will be replaced with the name and content.
     file_end and file_start will take take their places respectively on each side of the file.
@@ -251,6 +251,10 @@ layout: {{layout}}
 
     file.write("""
     <input id="autogen_search_input">
+    <style>
+    a.autogen_search_anchor:active{
+    background-color:darkgrey !IMPORTANT;}
+    </style>
     <a
         href="#OH!NO!OurJavascriptIsNotWorkingRight"
         id="autogen_search_anchor"
@@ -264,12 +268,11 @@ layout: {{layout}}
     <script>
     interval = setInterval(() => {
         document.getElementById("autogen_search_anchor").href =  "#"+document.getElementById("autogen_search_input").value;
-
         document.getElementById("autogen_search_input").addEventListener("keyup", function(e) {
               if (e.keyCode == 13) {document.getElementById('autogen_search_anchor').click();}
         });
-
         }, 400);
+
     </script>
     """)
 
