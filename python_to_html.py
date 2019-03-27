@@ -252,7 +252,7 @@ layout: {{layout}}
     file.write("""
     <input id="autogen_search_input">
     <a
-        href="#foobar"
+        href="#OH!NO!OurJavascriptIsNotWorkingRight"
         id="autogen_search_anchor"
         class="autogen_search_anchor"
         style="
@@ -262,12 +262,14 @@ layout: {{layout}}
             border-radius: .3em;"
     >Search</a>
     <script>
-    let interval;
     interval = setInterval(() => {
         document.getElementById("autogen_search_anchor").href =  "#"+document.getElementById("autogen_search_input").value;
 
-      }, 1);
+        document.getElementById("autogen_search_input").addEventListener("keyup", function(event) {
+              document.getElementById('autogen_search_anchor').click();
+        });
 
+        }, .01);
     </script>
     """)
 
