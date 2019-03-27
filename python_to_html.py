@@ -97,6 +97,8 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
                 type_prefix = ''
         else:
             main_desc = ' '.join(subj)
+            if 'None'== main_desc:
+                main_desc = '<i>No documentation found.</i>'
 
 
             #add the top "note"
@@ -129,7 +131,8 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
     /ul
     """
     #print(doc_out)
-    content = '<div style="margin-left:3%"><p>'+main_desc+'</p>\n<ul>'+doc_out+'</ul></div>'
+    #print((main_desc,subj))
+    content = '<div style="margin-left:3%"><p><!--main_desc-->'+main_desc+'</p>\n<ul><!--doc_out-->'+doc_out+'</ul></div>'
 
     return(section.replace('{{contents}}',content))
 
