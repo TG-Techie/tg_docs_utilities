@@ -101,8 +101,9 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
                 main_desc = '<i>No documentation found.</i>'
 
 
-            #add the top "note"
-    section = section.replace('{{note}}',highlight.replace('{{contents}}',tag))
+    #add the top "note"
+    anchor = '<a id="'+object_name+'"></a>'
+    section = section.replace('{{note}}',highlight.replace('{{contents}}',tag+anchor))
 
     #add in the name and prefix
     '''type func_name(in,puts,):'''
@@ -132,9 +133,11 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
     """
     #print(doc_out)
     #print((main_desc,subj))
+
     content = '<div style="margin-left:3%"><p><!--main_desc-->'+main_desc+'</p>\n<ul><!--doc_out-->'+doc_out+'</ul></div>'
 
-    return(section.replace('{{contents}}',content))
+
+    return(section.replace('{{contents}}', content))
 
 def write_item(func, func_name, file, template, index = 1, prefix = 'function'):
     """
