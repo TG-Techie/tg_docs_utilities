@@ -265,11 +265,11 @@ layout: {{layout}}
     interval = setInterval(() => {
         document.getElementById("autogen_search_anchor").href =  "#"+document.getElementById("autogen_search_input").value;
 
-        document.getElementById("autogen_search_input").addEventListener("keyup", function(event) {
-              document.getElementById('autogen_search_anchor').click();
+        document.getElementById("autogen_search_input").addEventListener("keyup", function(e) {
+              if (e.keyCode == 13) {document.getElementById('autogen_search_anchor').click();}
         });
 
-        }, .01);
+        }, 400);
     </script>
     """)
 
