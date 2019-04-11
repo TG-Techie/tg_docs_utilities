@@ -55,6 +55,10 @@ body{background-color: white;}
 
 default_template.append(default_template[1])
 
+current_template = default_template
+def highlight_text(string):
+    return current_template[4].replace('{{contents}}',string)
+
 def parse_docstring(object, object_name, template, highlight, prefix = ''):
     """
     Parse the docs of a function, class, or method and return
@@ -89,9 +93,12 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
             elif front == 'type':
                 type_prefix = back
             elif front == 'param':
-                inputs.append(subj[1])
+                formatted_input =  back.replace(' ', ' = ').replace("'",'"')
+                if '=' in formatted_input:
+                    formatted_input = highlight_text(formatted_input)
+                inputs.append(formatted_input.replce(' ',''))
                 num_inputs += 1
-                doc_out += '\n<li>'+type_prefix+' '+back+':'+doc.pop(0)+'</li>'
+                doc_out += '\n<li>'+type_prefix+' '+ formatted_input + ':'+doc.pop(0)+'</li>'
                 type_prefix = ''
             else:
                 type_prefix = ''
@@ -205,6 +212,8 @@ def compile_page(module, output_path, template = default_template, layout = None
     file_end and file_start will take take their places respectively on each side of the file.
 
     """
+    global current_template
+    current_template = template
     print('\n', module)
     prev_path = os.path.abspath(output_path)
     file_path = os.path.abspath(output_path+'/docs/'+'/'.join(module.__name__.split('.')[0:-1]))
