@@ -70,7 +70,7 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
     """
     section = template
 
-    doc = str(object.__doc__).split(':')
+    doc = [x.split(' ') for x in str(object.__doc__).split(':')]
     types = ['param', 'tag', 'type']
 
     tag=''
@@ -81,8 +81,9 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
     doc_out=''
 
     type_prefix = ''
+    kwargs_hit = False
     while len(doc):
-        subj = doc.pop(0).split(' ')
+        subj = doc.pop(0)
         #print(subj[0:2])
         if subj[0] in types:
             front = subj[0]
@@ -93,12 +94,20 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
             elif front == 'type':
                 type_prefix = back
             elif front == 'param':
-                formatted_input =  back.replace(' ', ' = ').replace("'",'"')
-                if '=' in formatted_input:
+                was_highlighted = False
+                formatted_input =  back.replace(' ', '&nbsp;=&nbsp;').replace("'",'"')
+                if not '=' in formatted_input:
                     formatted_input = highlight_text(formatted_input)
-                inputs.append(formatted_input.replace(' ',''))
+                    was_highlighted = True
+                if kwargs_hit == False and not was_highlighted:
+                    #formatted_input = '<br>'+formatted_input
+                    inputs.append('&nbsp;'*3+formatted_input)
+                    kwargs_hit = True
+                else:
+                    inputs.append(formatted_input)
                 num_inputs += 1
-                doc_out += '\n<li>'+type_prefix+' '+ formatted_input + ':'+doc.pop(0)+'</li>'
+
+                doc_out += '\n<li>'+type_prefix+' '+ formatted_input + ':'+' '.join(doc.pop(0))+'</li>'
                 type_prefix = ''
             else:
                 type_prefix = ''
@@ -118,7 +127,7 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
                                               display: block;'>
                         </a>''')
 
-    section = section.replace('{{note}}',highlight.replace('{{contents}}',tag+''.join(anchors)))
+    section = section.replace('{{note}}',highlight_text(tag+''.join(anchors)))
 
     #add in the name and prefix
     '''type func_name(in,puts,):'''
@@ -127,7 +136,7 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
         inputstring += inp +',  '
     inputstring = '('+inputstring.strip(' ').strip(',')+'):'
 
-    name = highlight.replace('{{contents}}',prefix) # the prefix, highlighted
+    name = highlight_text(prefix) # the prefix, highlighted
     name += ' '+object_name
     if not isinstance(object, property):
         name += inputstring
