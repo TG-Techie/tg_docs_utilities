@@ -96,7 +96,7 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
                 formatted_input =  back.replace(' ', ' = ').replace("'",'"')
                 if '=' in formatted_input:
                     formatted_input = highlight_text(formatted_input)
-                inputs.append(formatted_input.replce(' ',''))
+                inputs.append(formatted_input.replace(' ',''))
                 num_inputs += 1
                 doc_out += '\n<li>'+type_prefix+' '+ formatted_input + ':'+doc.pop(0)+'</li>'
                 type_prefix = ''
