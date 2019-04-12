@@ -116,7 +116,6 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
             if 'None'== main_desc:
                 main_desc = '<i>No documentation found.</i>'
 
-
     #add the top "note"
     anchors = []
     for permu in [object_name,
@@ -181,7 +180,7 @@ def write_class(class_obj, class_name, file, template):
     """
     From the template write the formatted docstring of the inputted class.
     :param class_obj: the class to document.
-    :param class_name: the name to use when documenting.
+    :param class_name: the name to use when documenting, str.
     :param file: the file to write the docs into.
     :param template: the list containing templates.
     """
@@ -189,24 +188,37 @@ def write_class(class_obj, class_name, file, template):
     #print(class_name, attr_list)
     attr_list.sort()
 
+    print(class_name+':')
     if '__init__' in attr_list:
         file.write(parse_docstring(eval('class_obj.__init__') ,class_name, template[2], template[4], prefix = 'class'))
     else:
         file.write(parse_docstring(class_obj, class_name, template[2], template[4], prefix = 'class'))
 
     #file.write('<div style="margin-left:5%">')
-
+    #                 [[func],[property],[values?]]
+    chunked_attr_list = [[], [], []]
     for attribute_name in attr_list:
-        attribute = eval('class_obj.'+attribute_name)
-        if not attribute_name[0] == '_':
-            if callable(attribute):# or isinstance(attribute, property):
-                #file.write('<li>')
-                write_item(attribute, class_name+'.'+attribute.__name__, file, template, index = 3, prefix = '')
-                #file.write('</li>')
-            elif isinstance(attribute, property):
-                #print(str(attribute))
-                write_item(attribute, class_name+'.'+attribute_name, file, template, index = 3, prefix = '')
+        if not attribute_name.startswith('_'):
+            attribute = eval('class_obj.'+attribute_name)
+            if callable(attribute):
+                chunked_attr_list[0].append(attribute_name)
+            elif  isinstance(attribute, property):
+                chunked_attr_list[1].append(attribute_name)
+            else:
+                chunked_attr_list[2].append(attribute_name)
 
+    print(chunked_attr_list)
+    for attribute_name in chunked_attr_list[0]:
+        attribute = eval('class_obj.'+attribute_name)
+        write_item(attribute, class_name+'.'+attribute.__name__, file, template, index = 3, prefix = '')
+
+    for attribute_name in chunked_attr_list[1]:
+        attribute = eval('class_obj.'+attribute_name)
+        write_item(attribute, class_name+'.'+attribute_name, file, template, index = 3, prefix = '')
+
+    for attribute_name in chunked_attr_list[2]:
+        attribute = eval('class_obj.'+attribute_name)
+        write_item(attribute, class_name+'.'+attribute_name, file, template, index = 3, prefix = '')
     #file.write('</div>')
 
 def compile_page(module, output_path, template = default_template, layout = None):
