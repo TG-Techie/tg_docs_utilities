@@ -89,7 +89,7 @@ def parse_docstring(object, object_name, template, highlight, prefix = ''):
             front = subj[0]
             back = ' '.join(subj[1:])
             if front == 'tag':
-                print('!tag', back, object_name)
+                #print('!tag', back, object_name)
                 tag = back
             elif front == 'type':
                 type_prefix = back
@@ -188,7 +188,7 @@ def write_class(class_obj, class_name, file, template):
     #print(class_name, attr_list)
     attr_list.sort()
 
-    print(class_name+':')
+    #print(class_name+':')
     if '__init__' in attr_list:
         file.write(parse_docstring(eval('class_obj.__init__') ,class_name, template[2], template[4], prefix = 'class'))
     else:
@@ -207,7 +207,7 @@ def write_class(class_obj, class_name, file, template):
             else:
                 chunked_attr_list[2].append(attribute_name)
 
-    print(chunked_attr_list)
+    #print(chunked_attr_list)
     for attribute_name in chunked_attr_list[0]:
         attribute = eval('class_obj.'+attribute_name)
         write_item(attribute, class_name+'.'+attribute.__name__, file, template, index = 3, prefix = '')
@@ -235,14 +235,14 @@ def compile_page(module, output_path, template = default_template, layout = None
     """
     global current_template
     current_template = template
-    print('\n', module)
+    #print('\n', module)
     prev_path = os.path.abspath(output_path)
     file_path = os.path.abspath(output_path+'/docs/'+'/'.join(module.__name__.split('.')[0:-1]))
     module_name = module.__name__.split('.')[-1]
     file_name = module_name+'.html'
     file_title = 'Docs.'+module.__name__
 
-    print('outputting to: "'+file_path+'/'+file_name+'"')
+    #print('outputting to: "'+file_path+'/'+file_name+'"')
 
     if not os.path.exists(file_path):
         os.makedirs(file_path)
@@ -332,5 +332,5 @@ layout: {{layout}}
     file.write(template[len(template)-2])
 
     file.close()
-    print(os.listdir(file_path))
+    #print(os.listdir(file_path))
     os.chdir(prev_path)
